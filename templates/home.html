@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>FactFindr</title>
+    <!-- MDB icon -->
+    <link rel="icon" href="static/img/logo.png" type="image/x-icon" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <!-- Google Fonts Roboto -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+    <!-- MDB -->
+    <link rel="stylesheet" href="static/css/mdb.min.css" />
+    <link href="static/style2.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-light bg-light" style="height: 55px">
+        <div class="container">
+            <div style="float: left; margin-top:-25px">
+                <a style="font-weight: bold;" id="head">FactFindr</a>
+            </div>
+            <div style="float: right;">
+                <button class="btn btn_1" data-mdb-toggle="modal" data-mdb-target="#settingsModal">Settings</button>
+                <button class="btn btn_1" id="logoutbtn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="btn-group" role="group"
+        style="position: fixed; left: 50%; top: 50%; z-index:1; margin-left: -50px;margin-top:-232px;">
+        <button type="button" class="btn bg-dark text-light btn-styles" id="tfilebtn">Fake News Detector</button>
+    </div>
+
+    <div class="card" id="speechdiv" align="center">
+
+        <div class="container-fluid">
+            <!--Text Based-->
+            <div class="" id="tfilediv" align="center">
+                <textarea id="heading" placeholder="Please enter the news heading. . ."></textarea>
+                <textarea id="content" placeholder="Please input the text for hate speech analysis. . ."></textarea>
+                <br />
+                <select class="form-select" id="subject" style="margin-top:10px; width: 550px;">
+                    <option selected>Select the subject</option>
+                    <option value="News">News</option>
+                    <option value="Government News">Government News</option>
+                    <option value="politicsNews">Political News</option>
+                    <option value="worldnews">International News</option>
+                    <option value="Business News">Business News</option>
+                    <option value="Technology News">Technology News</option>
+                    <option value="Sports News">Sports News</option>
+                    <option value="Science and Health News">Science & Health News</option>
+                  </select>
+                  <br/>
+                <button type="button" class="btn bg-dark text-light btn-styles" id="analyzetextbtn"
+                    style="width: 550px">Analyze</button>
+                <br /><br />
+
+            </div>
+            <!--End-->
+
+            <!--End-->
+
+            <div id="resdiv" style="display: none">
+                <h3> Assessment Result </h3>
+                <spans id="resspan" style="font-weight: bold; font-size: 18px;"></spans>
+
+                <div id="barChart" style="width: 75%"></div>
+
+                <br /><br />
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--Settings Modal-->
+
+    <div class="modal fade" id="settingsModal" data-mdb-backdrop="static" data-mdb-keyboard="false" tabindex="-1"
+        aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: 4px solid rgba(7, 7, 89, 0.75);">
+                <div class="modal-header">
+
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div id="pswddiv">
+                            <div class="form-outline">
+                                <input type="password" id="cpswd" class="form-control" />
+                                <label class="form-label" for="cpswd">Current Password</label>
+                            </div>
+                            <br />
+                            <div class="form-outline">
+                                <input type="password" id="npswd" class="form-control" />
+                                <label class="form-label" for="npswd">New Password</label>
+                            </div>
+                            <br />
+                            <div class="form-outline">
+                                <input type="password" id="npswd2" class="form-control" />
+                                <label class="form-label" for="npswd2">Confirm Password</label>
+                            </div>
+                            <br />
+                            <br />
+                            <div align="center">
+                                <button class="btn btn-block bg-dark text-light"
+                                    style="text-transform: capitalize; font-weight:bold; font-size: 13px"
+                                    id="changepswdbtn">Change Password</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-dark text-light" data-mdb-dismiss="modal"
+                        style="text-transform: capitalize; font-weight:bold; font-size: 13px">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MDB -->
+    <script type="text/javascript" src="static/js/mdb.min.js"></script>
+    <!-- Custom scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include MDB Bootstrap JS and Chart.js -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script>
+        google.charts.load('current', { 'packages': ['corechart'] });
+
+
+        real = 0
+        fake = 0
+        // Callback function to draw the chart
+        function drawChart() {
+            // Data
+            const data = google.visualization.arrayToDataTable([
+                ['Class', 'Percentage', { role: 'style' }],
+                ['Real News', real, '#17a2b8'],
+                ['Fake News', fake, '#dc3545'],
+            ]);
+
+            // Options
+            const options = {
+                legend: { position: 'none' },
+                vAxis: {
+                    title: 'Percentage',
+                    minValue: 0,
+                    maxValue: 100,
+                }
+            };
+
+            // Create the chart
+            const chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
+            chart.draw(data, options);
+        }
+
+        $("#logoutbtn").click(function () {
+            $.ajax({
+                url: "/logout",
+                success: function (response) {
+                    window.location.href = response.redirect
+                }
+            })
+        })
+
+
+        $("#changepswdbtn").click(function () {
+            cpswd = $("#cpswd").val()
+            npswd = $("#npswd").val()
+            npswd2 = $("#npswd2").val()
+            if (npswd == npswd2) {
+                $.ajax({
+                    url: "/change_password",
+                    method: "POST",
+                    data: {
+                        cpswd: cpswd,
+                        npswd: npswd,
+                        npswd2: npswd2
+                    },
+                    success: function (response) {
+                        alert(response)
+                        $("#cpswd").val("")
+                        $("#npswd").val("")
+                        $("#npswd2").val("")
+
+                    }
+                })
+            }
+        })
+
+        $("#analyzetextbtn").click(function () {
+            heading = $("#heading").val()
+            subject = $("#subject").val()
+            content = $("#content").val()
+            $("#resdiv").slideUp("slow")
+            if (subject != "" && heading != "" && content != "") {
+                $.ajax({
+                    url: "/analyze",
+                    method: "POST",
+                    data: {
+                        heading: heading,
+                        content: content,
+                        subject: subject
+                    },
+                    success: function (response) {
+
+                        col = '#000'
+                        if (response.class == "0") {
+                            col = '#dc3545'
+                            fake = parseInt(response.prob);
+                            real = parseInt(100-fake);
+                        } else {
+                            col = '#17a2b8'
+                            real = parseInt(response.prob);
+                            fake = parseInt(100-real);
+                        }
+
+                        $("#resspan").html(
+                            "<b>Speech Type: <font style='color: " + col + "'>" + response.label + "</font></b>" +
+                            "<br/><b style='font-size: 15px'>Predicted Probability: " + response.prob + "</b><br/>"
+                        )
+                        google.charts.setOnLoadCallback(drawChart);
+                        $("#resdiv").slideDown("slow")
+                    }
+                })
+            } else {
+                alert("Please enter all the fields!")
+            }
+
+            
+        })
+
+    </script>
+
+</body>
+
+</html>

@@ -7,7 +7,7 @@ import pickle
 import numpy as np
 
 
-model = load_model(f"Files/fake_news.h5")
+model = load_model(f"Files/fake_news3.h5")
 
 #Removal of HTML Contents
 def remove_html(text):
@@ -44,23 +44,23 @@ def cleaning(text):
     return text
 
 def predict(title, text, subject):
-    max_features = 10000
     maxlen = 300
 
     text = subject + " " + title + " " + text
     text = cleaning(text)
-    print(text)
     with open(r"Files/tokenizer.pkl", "rb") as file:
         tokenizer = pickle.load(file)
     
     sequence = tokenizer.texts_to_sequences([text])
     pad_sequence = pad_sequences(sequence, maxlen=maxlen)
     
-    pred = model.predict(pad_sequence)
-    pred_class = int(np.round(pred[0], 0))
-    pred_prob = float(np.round(pred[0], 4))
-    label = ["Fake News", "Real News"][pred_class]
-
-    return pred_class, label, pred_prob
+    pred = model.predict(pad_sequence)[0]
+    cls = np.argmax(pred)
+    prob = np.round(pred[cls], 4)*100
+    label = ["Fake News", "Real News"][cls]
+    print(pred)
+    return cls, label, prob
     
+
+
 
